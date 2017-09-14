@@ -5,11 +5,18 @@ def simScorePair(p1, t1, p2, t2, lvl):
     simsqscore = 0
     simUser = 0
 
+
+
     for m in range(lvl):
         print("LEVEL" + str(lvl-m))
         if(m == 1):
             p1 = levelShift(p1)
             p2 = levelShift(p2)
+
+        print(p1)
+        print(t1)
+        print(p2)
+        print(t2)
 
         matches = []
         maxMatches = []
@@ -29,7 +36,9 @@ def simScorePair(p1, t1, p2, t2, lvl):
             fakedata = [0,0,0]
             matches.append(fakedata)
 
-        commonLoc = []
+        commonLoc = [None] * len(matches)
+        for x in range(len(matches)):
+            commonLoc[x] = [0] * len(matches)
 
         for l in range(1, len(matches)):
             for t in range(l-1, -1, -1):
@@ -40,7 +49,7 @@ def simScorePair(p1, t1, p2, t2, lvl):
                         for i in range(len(matches)):
                             if commonLoc[t][i] == 1:
                                 matches[i][2] = -1
-
+        print(commonLoc)
         maximumMatch(commonLoc, len(commonLoc[0]) - 1, len(commonLoc[0]) - 1, maxMatches, eachMatch)
 
         if len(maxMatches) > 1:
@@ -80,6 +89,8 @@ def maximumMatch(commonLoc, srow, scol, maxMatches, eachMatch):
         if commonLoc[srow][i] == 1:
             eachMatch.append(srow+1)
             maximumMatch(commonLoc, i, i, maxMatches, eachMatch)
+
+    print(maxMatches)
 
     return
 
@@ -126,7 +137,7 @@ def precTest(matches, l, t, t1, t2):
         for i in range(matches[l][0] * 2 + 1, matches[t][0] * 2):
             total1 += t1[i]
 
-        for i in range(matches[l][0] * 2 + 1, matches[t][0] * 2):
+        for i in range(matches[l][1] * 2 + 1, matches[t][1] * 2):
             total2 += t2[i]
 
         print("total1", total1)
