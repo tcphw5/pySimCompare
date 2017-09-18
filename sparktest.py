@@ -1,5 +1,56 @@
-import pyspark
-sc = pyspark.SparkContext()
+from pyspark import SparkContext, SQLContext
+from pyspark.sql.types import DoubleType
+from pyspark.sql.functions import udf, array
+sc = SparkContext()
+sqlContext = SQLContext(sc)
 
-raw_data = sc.textFile("people.csv")
-raw_data.take(4)
+import udfsimCompare
+import ast
+import pandas as pd
+
+from itertools import product
+
+#df = sqlContext.read.csv("ppl2.csv", header=True)
+#df = sc.parallelize(df)
+#df = df.select(df.personID.cast(DoubleType()), df.locID.cast(DoubleType()), df.stayTime.cast(DoubleType()), df.travelTime.cast(DoubleType()))
+
+#[(3,2,3,1), (0,5.0,3.5,4.5,2.5,5.5,0)], [(5,1,2,4), (0,2.5,3.0,4.0,1.5,1.5,0)]]
+
+data = [[(3,2,3,1), (0,5.0,3.5,4.5,2.5,5.5,0)], [(5,1,2,4), (0,2.5,3.0,4.0,1.5,1.5,0)]]
+
+df = pd.DataFrame(data=data, columns=["loc", "times"])
+df2 = pd.read_csv("ppl2.csv", converters={1:ast.literal_eval})
+
+df["traj"] = df[["loc", "times"]].values.tolist()
+df2["traj"] = df2[["loc", "times"]].values.tolist()
+df3 = pd.DataFrame(df2[["personID", "traj"]])
+df4 = pd.read_csv('ppl3.csv', converters={1:ast.literal_eval})
+
+c = list(product(df4.personID.tolist(), df4.personID.tolist()))
+dic = dict(zip(df4.personID, df4.traj))
+df = pd.DataFrame(c, columns=['id', 'id2'])
+df[['value1', 'value2']]=df.apply(lambda x:x.map(dic))
+df = df.loc[df.id!=df.id2,:]
+
+#print(df)
+
+df['idkey'] = df['id'].astype(str) + ":" + df['id2'].astype(str)
+del df['id']
+del df['id2']
+
+print(df)
+
+spark_df = sqlContext.createDataFrame(df)
+print(spark_df.show())
+#print(spark_df.take(1))
+print(spark_df.count())
+
+pysim = udf(lambda uarray: udfsimCompare.simScorePairTest(uarray), DoubleType())
+
+new_spark = spark_df.withColumn('Result', pysim(array('value1', 'value2')))
+
+print(new_spark.show())
+
+#print(df.head())
+
+#print(df3)
