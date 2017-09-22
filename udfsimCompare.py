@@ -1,9 +1,30 @@
 import time
 MAX_DIF = 0.2
 
-def simScorePairTest(arr):
-    sim = int(arr[0][0]) + int(arr[1][0])
-    return float(sim)
+def simScorePairTest(val1, val2, lvl):
+
+    print(val1)
+    print(val2)
+    print(lvl)
+
+    p1 = val1[:val1.index('0')]
+    p1 = [float(i) for i in p1]
+    t1 = val1[val1.index('0'):]
+    t1 = [float(i) for i in t1]
+    p2 = val2[:val2.index('0')]
+    p2 = [float(i) for i in p2]
+    t2 = val2[val2.index('0'):]
+    t2 = [float(i) for i in t2]
+
+    print(p1)
+    print(t1)
+
+    sim = simScorePair(p1, t1, p2, t2, lvl)
+
+    return sim
+
+
+
 
 
 def simScorePair(p1, t1, p2, t2, lvl):
@@ -12,65 +33,65 @@ def simScorePair(p1, t1, p2, t2, lvl):
 
 
 
-    for m in range(lvl):
-        print("LEVEL" + str(lvl-m))
-        if(m == 1):
-            p1 = levelShift(p1)
-            p2 = levelShift(p2)
+    print("LEVEL" + str(lvl))
+    if(lvl == 1):
+        p1 = levelShift(p1)
+        p2 = levelShift(p2)
 
-        print(p1)
-        print(t1)
-        print(p2)
-        print(t2)
+    print(p1)
+    print(t1)
+    print(p2)
+    print(t2)
 
-        matches = []
-        maxMatches = []
-        eachMatch = []
+    matches = []
+    maxMatches = []
+    eachMatch = []
 
-        for i in range(len(p1)):
-            for j in range(len(p2)):
-                if p1[i] == p2[j]:
-                    current = [0, 0, 0]
-                    current[0] = i
-                    current[1] = j
-                    matches.append(current)
+    for i in range(len(p1)):
+        for j in range(len(p2)):
+            if p1[i] == p2[j]:
+                current = [0, 0, 0]
+                current[0] = i
+                current[1] = j
+                matches.append(current)
 
-        matches.reverse()
+    matches.reverse()
 
-        if len(matches) == 0:
-            fakedata = [0,0,0]
-            matches.append(fakedata)
+    if len(matches) == 0:
+        fakedata = [0,0,0]
+        matches.append(fakedata)
 
-        commonLoc = [None] * len(matches)
-        for x in range(len(matches)):
-            commonLoc[x] = [0] * len(matches)
+    commonLoc = [None] * len(matches)
+    for x in range(len(matches)):
+        commonLoc[x] = [0] * len(matches)
 
-        for l in range(1, len(matches)):
-            for t in range(l-1, -1, -1):
-                if matches[l][2] == 0:
-                    if precTest(matches, l, t, t1, t2):
-                        if commonLoc[l][t] != -1:
-                            commonLoc[l][t] = 1
-                        for i in range(len(matches)):
-                            if commonLoc[t][i] == 1:
-                                matches[i][2] = -1
-        print(commonLoc)
-        maximumMatch(commonLoc, len(commonLoc[0]) - 1, len(commonLoc[0]) - 1, maxMatches, eachMatch)
+    for l in range(1, len(matches)):
+        for t in range(l-1, -1, -1):
+            if matches[l][2] == 0:
+                if precTest(matches, l, t, t1, t2):
+                    if commonLoc[l][t] != -1:
+                        commonLoc[l][t] = 1
+                    for i in range(len(matches)):
+                        if commonLoc[t][i] == 1:
+                            matches[i][2] = -1
+    print(commonLoc)
+    maximumMatch(commonLoc, len(commonLoc[0]) - 1, len(commonLoc[0]) - 1, maxMatches, eachMatch)
 
-        if len(maxMatches) > 1:
-            totalsize = 0
-            for j in range(1, len(maxMatches)):
-                totalsize += len(maxMatches[j-1])
-                for i in range(totalsize):
-                    maxMatches[j].remove(0)
+    if len(maxMatches) > 1:
+        totalsize = 0
+        for j in range(1, len(maxMatches)):
+            totalsize += len(maxMatches[j-1])
+            for i in range(totalsize):
+                maxMatches[j].remove(0)
 
-        sgscore = 0
+    sgscore = 0
 
-        sgscore = simScore(maxMatches)
+    sgscore = simScore(maxMatches)
 
-        simsqscore = sgscore / float(len(p1) * len(p2))
+    simsqscore = sgscore / float(len(p1) * len(p2))
 
-        simUser += weightFunc(lvl-m) * simsqscore
+
+    simUser += weightFunc(lvl) * simsqscore
 
     return simUser
 
@@ -185,5 +206,6 @@ def main():
 
     endtime = time.clock()
 
-
-main()
+simScorePairTest(['3', '2', '3', '1', '0', '5.0', '3.5', '4.5', '2.5', '5.5', '0'],
+                 ['5', '1', '2', '4', '0', '2.5', '3.0', '4.0', '1.5', '1.5', '0'],
+                 1)

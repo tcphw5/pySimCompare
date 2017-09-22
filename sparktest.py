@@ -26,6 +26,10 @@ df2["traj"] = df2[["loc", "times"]].values.tolist()
 df3 = pd.DataFrame(df2[["personID", "traj"]])
 df4 = pd.read_csv('ppl3.csv', converters={1:ast.literal_eval})
 
+
+
+print("hi")
+print(df4)
 c = list(product(df4.personID.tolist(), df4.personID.tolist()))
 dic = dict(zip(df4.personID, df4.traj))
 df = pd.DataFrame(c, columns=['id', 'id2'])
@@ -38,16 +42,24 @@ df['idkey'] = df['id'].astype(str) + ":" + df['id2'].astype(str)
 del df['id']
 del df['id2']
 
+dfcopy = df.copy()
+df['lvl'] = 1
+dfcopy['lvl'] = 2
+
+df = df.append(dfcopy, ignore_index=True)
+
 print(df)
+
+
 
 spark_df = sqlContext.createDataFrame(df)
 print(spark_df.show())
 #print(spark_df.take(1))
 print(spark_df.count())
 
-pysim = udf(lambda uarray: udfsimCompare.simScorePairTest(uarray), DoubleType())
+pysim = udf(lambda val1, val2, lvl: udfsimCompare.simScorePairTest(val1, val2, lvl), DoubleType())
 
-new_spark = spark_df.withColumn('Result', pysim(array('value1', 'value2')))
+new_spark = spark_df.withColumn('Result', pysim('value1', 'value2', 'lvl'))
 
 print(new_spark.show())
 
