@@ -1,6 +1,7 @@
 from pyspark import SparkContext, SQLContext
 from pyspark.sql.types import DoubleType
 from pyspark.sql.functions import udf, array
+from pyspark.sql import functions as f
 sc = SparkContext()
 sqlContext = SQLContext(sc)
 
@@ -63,6 +64,27 @@ new_spark = spark_df.withColumn('Result', pysim('value1', 'value2', 'lvl'))
 
 print(new_spark.show())
 
+group_spark = new_spark.groupBy('idkey')
+group_spark = group_spark.agg(f.sum('Result'))
+
+print(group_spark.show())
+
+most_sim_groups = []
+currentGroup = []
+sameXValGroup = []
+
+for x in range(1, 5):
+    sameXValGroup = []
+    targetID = f"{x}:%"
+    currentGroup = group_spark.filter(group_spark.idkey.like(targetID))
+    print(currentGroup.show())
+
+    most_sim_groups.append(currentGroup)
+
+print(most_sim_groups)
+
+for x in most_sim_groups:
+    print(x.filter(x['sum(Result)'] > 2).show())
 #print(df.head())
 
 #print(df3)

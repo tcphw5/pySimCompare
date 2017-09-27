@@ -3,9 +3,9 @@ MAX_DIF = 0.2
 
 def simScorePairTest(val1, val2, lvl):
 
-    print(val1)
-    print(val2)
-    print(lvl)
+    # print(val1)
+    # print(val2)
+    # print(lvl)
 
     p1 = val1[:val1.index('0')]
     p1 = [float(i) for i in p1]
@@ -16,8 +16,8 @@ def simScorePairTest(val1, val2, lvl):
     t2 = val2[val2.index('0'):]
     t2 = [float(i) for i in t2]
 
-    print(p1)
-    print(t1)
+    # print(p1)
+    # print(t1)
 
     sim = simScorePair(p1, t1, p2, t2, lvl)
 
@@ -33,15 +33,15 @@ def simScorePair(p1, t1, p2, t2, lvl):
 
 
 
-    print("LEVEL" + str(lvl))
+    #print("LEVEL" + str(lvl))
     if(lvl == 1):
         p1 = levelShift(p1)
         p2 = levelShift(p2)
 
-    print(p1)
-    print(t1)
-    print(p2)
-    print(t2)
+    #print(p1)
+    #print(t1)
+    #print(p2)
+    #print(t2)
 
     matches = []
     maxMatches = []
@@ -74,16 +74,22 @@ def simScorePair(p1, t1, p2, t2, lvl):
                     for i in range(len(matches)):
                         if commonLoc[t][i] == 1:
                             matches[i][2] = -1
-    print(commonLoc)
+    #print(commonLoc)
+    # maxMatches = maximumMatch(commonLoc, len(commonLoc[0]) - 1, len(commonLoc[0]) - 1, maxMatches, eachMatch)
     maximumMatch(commonLoc, len(commonLoc[0]) - 1, len(commonLoc[0]) - 1, maxMatches, eachMatch)
+
+    #print("maxMatches")
+    #print(maxMatches)
 
     if len(maxMatches) > 1:
         totalsize = 0
         for j in range(1, len(maxMatches)):
             totalsize += len(maxMatches[j-1])
             for i in range(totalsize):
-                maxMatches[j].remove(0)
-
+                try:
+                    maxMatches[j].remove(0)
+                except ValueError:
+                    pass  # do nothing
     sgscore = 0
 
     sgscore = simScore(maxMatches)
@@ -116,9 +122,9 @@ def maximumMatch(commonLoc, srow, scol, maxMatches, eachMatch):
             eachMatch.append(srow+1)
             maximumMatch(commonLoc, i, i, maxMatches, eachMatch)
 
-    print(maxMatches)
+    #print(maxMatches)
 
-    return
+    return maxMatches
 
 
 def weightFunc(lvl):
@@ -156,8 +162,8 @@ def precTest(matches, l, t, t1, t2):
     total1 = 0
     total2 = 0
     travDif = 0
-    print(l,t,t1,t2)
-    print("matches", matches)
+    #print(l,t,t1,t2)
+    #print("matches", matches)
 
     if matches[l][0] <= matches[t][0] and matches[l][1] < matches[t][1]:
         for i in range(matches[l][0] * 2 + 1, matches[t][0] * 2):
@@ -166,8 +172,8 @@ def precTest(matches, l, t, t1, t2):
         for i in range(matches[l][1] * 2 + 1, matches[t][1] * 2):
             total2 += t2[i]
 
-        print("total1", total1)
-        print("total2", total2)
+        #print("total1", total1)
+        #print("total2", total2)
         travDif = abs(total1 - total2) / max(total1, total2)
 
         if travDif <= MAX_DIF:
