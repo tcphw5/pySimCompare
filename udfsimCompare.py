@@ -16,10 +16,16 @@ def simScorePairTest(val1, val2, lvl):
     t2 = val2[val2.index('0'):]
     t2 = [float(i) for i in t2]
 
+    # immediately stops computation if people have no locs in common
+    s2 = set(p2)
+    intersection = [val for val in p1 if val in s2]
+
     # print(p1)
     # print(t1)
-
-    sim = simScorePair(p1, t1, p2, t2, lvl)
+    if not intersection:
+        sim = 0
+    else:
+        sim = simScorePair(p1, t1, p2, t2, lvl)
 
     return sim
 
@@ -138,10 +144,25 @@ def levelShift(orgperson):
 
     for i in range(len(orgperson)):
         if orgperson[i] in (1, 2, 3):
-            shiftperson[i] = 11
+            shiftperson[i] = 20
 
         if orgperson[i] in (4, 5):
-            shiftperson[i] = 12
+            shiftperson[i] = 21
+
+        if orgperson[i] in (6, 7, 8):
+            shiftperson[i] = 22
+
+        if orgperson[i] in (9, 10):
+            shiftperson[i] = 23
+
+        if orgperson[i] in (11, 12, 13):
+            shiftperson[i] = 24
+
+        if orgperson[i] in (14, 15, 16):
+            shiftperson[i] = 25
+
+        if orgperson[i] in (17, 18, 19):
+            shiftperson[i] = 26
 
     return shiftperson
 

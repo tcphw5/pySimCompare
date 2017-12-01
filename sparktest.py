@@ -2,35 +2,22 @@ from pyspark import SparkContext, SQLContext
 from pyspark.sql.types import DoubleType
 from pyspark.sql.functions import udf, array
 from pyspark.sql import functions as f
-sc = SparkContext()
-sqlContext = SQLContext(sc)
-
 import udfsimCompare
 import ast
 import pandas as pd
-
 from itertools import product
+from timeit import default_timer as timer
 
-#df = sqlContext.read.csv("ppl2.csv", header=True)
-#df = sc.parallelize(df)
-#df = df.select(df.personID.cast(DoubleType()), df.locID.cast(DoubleType()), df.stayTime.cast(DoubleType()), df.travelTime.cast(DoubleType()))
+sc = SparkContext()
+sqlContext = SQLContext(sc)
 
-#[(3,2,3,1), (0,5.0,3.5,4.5,2.5,5.5,0)], [(5,1,2,4), (0,2.5,3.0,4.0,1.5,1.5,0)]]
+df4 = pd.read_csv('genPpl.csv', converters={1:ast.literal_eval})
 
-data = [[(3,2,3,1), (0,5.0,3.5,4.5,2.5,5.5,0)], [(5,1,2,4), (0,2.5,3.0,4.0,1.5,1.5,0)]]
+#print("hi")
+#print(df4)
 
-df = pd.DataFrame(data=data, columns=["loc", "times"])
-df2 = pd.read_csv("ppl2.csv", converters={1:ast.literal_eval})
+start = timer()
 
-df["traj"] = df[["loc", "times"]].values.tolist()
-df2["traj"] = df2[["loc", "times"]].values.tolist()
-df3 = pd.DataFrame(df2[["personID", "traj"]])
-df4 = pd.read_csv('ppl3.csv', converters={1:ast.literal_eval})
-
-
-
-print("hi")
-print(df4)
 c = list(product(df4.personID.tolist(), df4.personID.tolist()))
 dic = dict(zip(df4.personID, df4.traj))
 df = pd.DataFrame(c, columns=['id', 'id2'])
@@ -49,29 +36,36 @@ dfcopy['lvl'] = 2
 
 df = df.append(dfcopy, ignore_index=True)
 
-print(df)
-
-
+#print(df)
 
 spark_df = sqlContext.createDataFrame(df)
-print(spark_df.show())
-#print(spark_df.take(1))
-print(spark_df.count())
+#print(spark_df.show())
+#print(spark_df.count())
 
 pysim = udf(lambda val1, val2, lvl: udfsimCompare.simScorePairTest(val1, val2, lvl), DoubleType())
 
 new_spark = spark_df.withColumn('Result', pysim('value1', 'value2', 'lvl'))
 
-print(new_spark.show())
+#print(new_spark.show())
 
 group_spark = new_spark.groupBy('idkey')
 group_spark = group_spark.agg(f.sum('Result'))
 
-print(group_spark.show())
+# for removing scores that are too low
+# group_spark = group_spark.filter(group_spark['sum(Result)'] > .2)
 
+end = timer()
+
+print(group_spark.show())
+print(end - start)
+
+# for testing
+"""
 most_sim_groups = []
 currentGroup = []
 sameXValGroup = []
+
+
 
 for x in range(1, 5):
     sameXValGroup = []
@@ -83,8 +77,7 @@ for x in range(1, 5):
 
 print(most_sim_groups)
 
+# shows how to filter out below a certain threshold
 for x in most_sim_groups:
     print(x.filter(x['sum(Result)'] > 2).show())
-#print(df.head())
-
-#print(df3)
+"""
