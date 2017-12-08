@@ -188,13 +188,18 @@ def precTest(matches, l, t, t1, t2):
 
     if matches[l][0] <= matches[t][0] and matches[l][1] < matches[t][1]:
         for i in range(matches[l][0] * 2 + 1, matches[t][0] * 2):
-            total1 += t1[i]
+            if i < len(t1):
+                total1 += t1[i]
 
         for i in range(matches[l][1] * 2 + 1, matches[t][1] * 2):
-            total2 += t2[i]
+            if i < len(t1):
+                total2 += t2[i]
 
         #print("total1", total1)
         #print("total2", total2)
+        if total1 == 0 and total2 == 0:
+            return False
+
         travDif = abs(total1 - total2) / max(total1, total2)
 
         if travDif <= MAX_DIF:
